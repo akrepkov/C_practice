@@ -1,71 +1,103 @@
-// Assignment name  : g_diam
-// Expected files   : *.c, *.h
-// Allowed functions: write, malloc, free
-// --------------------------------------------------------------------------------
+// Write a program that processes a string representing an undirected graph. 
+// This string consists of links between nodes, with each link represented by two nodes separated by a hyphen (-), and multiple links separated by a space.
+// The program should determine the longest path in the graph where each node is visited only once. The result should be the length (in terms of the number of nodes) of the longest path, which does not revisit any node.
+// If the program receives no input or more than one argument, it should print a newline (\n).
 
-// Write a programe that takes a string. This string represents a graph and is
-// composed of series of links between this graph's nodes. Links are separated by
-// a single space. Nodes are represented by numbers, and links by two nodes
-// separated by a '-'. For exemple, if there is a link between nodes 2
-// and 3, it could be written as "2-3" or "3-2".
+// Output:
+// The program will output the length of the longest chain of connected nodes (without revisiting any node), followed by a newline.
 
-// The program will display the number of nodes comprised in the longest chain,
-// followed by a '\n', given it's impossible to pass through a node more than once.
-
-// If the number of parameters is different from 1, the program displays a '\n'.
-
-// Examples:
-
-// $>./g_diam "17-5 5-8 8-2 2-8 2-8 17-21 21-2 5-2 2-6 6-14 6-12 12-19 19-14 14-42" | cat -e
-// 10$
-// $>./g_diam "1-2 2-3 4-5 5-6 6-7 7-8 9-13 13-10 10-2 10-11 11-12 12-8 16-4 16-11 21-8 21-12 18-10 18-13 21-18" | cat -e
-// 15$
-
+//  ./g_diam "10-5 5-8 8-3 3-5 1-9 9-2 2-5 3-2 8-4 4-7 7-10 2-1"
+//  8$
+//  Explanation: The longest path here is from node 1 to node 10, passing through nodes 2, 5, 3, 8, 4, and 7, with 8 nodes in total.
 
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 
-char** parse_str(char* s) {
-    int rows = 0, i = 0, j = 0;
-    while (s[i] != '\0') {
-        if (s[i] == ' ') rows++;
-        i++;
-    }
-    rows++;
-    char** res = (char**)malloc(sizeof(char*) * (rows + 1));
-    if (!res) return NULL;
+#define MAX_NODES 8
 
-    i = 0;
-    int row_index = 0;
-    while (s[i] != '\0') {
-        int mem_count = 0;
-        while (s[i] != ' ' && s[i] != '\0') {
-            mem_count++;
-            i++;
-        }
-        res[row_index] = (char*)malloc(sizeof(char) * (mem_count + 1));
-        int k = 0;
-        while (k < mem_count) {
-            res[row_index][k] = s[i - mem_count + k];
-            k++;
-        }
-        res[row_index][k] = '\0';
-        row_index++;
-        if (s[i] == ' ') i++;
+struct Node {
+    int vertex;
+    struct Node* next;
+};
+
+
+struct Node* newNode(int vertex){
+    struct Node* newNode = (struct Node *)malloc(sizeof(struct Node));
+    newNode->vertex = vertex;
+    newNode->next = NULL;
+    return newNode;
+}
+
+
+int ft_split(char *s, int start, int finish){
+    char* res = (char*)malloc(sizeof(char) * (finish - start + 1)+ 1);
+    int i = 0;
+    while(start <= finish){
+        res[i++] = s[start++];
     }
-    res[rows] = NULL;
-    i = 0;
-    while(res[i] != NULL){
-        printf("RES: %s\n", res[i]);
-        i++;
+    res[i] = '\0';
+    int num = atoi(res);
+    free(res);
+    return num;
+}
+
+void addEdge(struct Node* adjacency_list[], int vertex1, int vertex2){
+    struct Node* node1 = newNode(vertex1);
+    node1->next = adjacency_list[vertex2];
+    adjacency_list[vertex2] = node1; //changing head here
+
+    struct Node* node2 = newNode(vertex2);
+    node2->next = adjacency_list[vertex1];
+    adjacency_list[vertex1] = node2;   //changing head here 
+
+}
+
+void print_adj_list(struct Node* adjacency_list[]){
+    for (int i = 0; i < MAX_NODES; i++) {
+        printf("List %d: ", i); // Print the vertex
+        struct Node* temp = adjacency_list[i];
+        while (temp != NULL) {
+            printf("%d ", temp->vertex); // Print its adjacent
+            temp = temp->next;
+        }
+        printf("\n");
     }
-    return res;
 }
 
 int main(){
-    char *str = "1-2 1-3 2-4 4-5 5-6 6-7 7-8";
-    parse_str(str);
+    char* s = "1-2 1-3 1-4 4-5 5-6 6-7 7-8";
+    // Initialize adjacency list
+    struct Node* adjacency_list[MAX_NODES];
+    for (int i = 0; i < MAX_NODES; i++) {
+        adjacency_list[i] = NULL;
+    }
+    int i = 0;
+    while(s[i] != '\0'){
+        int start = i;
+        while (s[i] != '-' && s[i] != '\0') {
+            i++;
+        }
+        int vertex1 = ft_split(s, start, i - 1);
+        i++;
+        start = i;
+        while (s[i] != ' ' && s[i] != '\0') {
+            i++;
+        }
+        int vertex2 = ft_split(s, start, i - 1);
+        // printf("%d %d\n", vertex1, vertex2);
+        addEdge(adjacency_list, vertex1, vertex2);
+        i++;
+    }
+    print_adj_list(adjacency_list);
+    for (int i = 0; i < MAX_NODES; i++) {
+        struct Node* temp = adjacency_list[i];
+        while (temp != NULL) {
+            struct Node* next = temp->next;
+            free(temp);
+            temp = next;
+        }
+    }
     return 0;
 }

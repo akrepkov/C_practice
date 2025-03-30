@@ -1,0 +1,19 @@
+Write a C program that takes a file as an argument. The file contains a rectangular map made up of:
+'.' for water
+'X' for land.
+
+The program must:
+Parse and validate the map.
+Find the size of the largest island (connected 'X' characters) or the total number of islands.
+
+Islands:
+An island is defined as 'X' characters connected horizontally or vertically (no diagonal connections).
+Validation:
+
+The map must only contain '.', 'X', and '\n'.
+All rows must be the same length.
+The file must not be empty or contain empty lines.
+
+Allowed functions: write, read, mmap, fstat, open, close, munmap, malloc, free.
+
+Output: Print the size of the largest island and the total number of islands.

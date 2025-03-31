@@ -46,11 +46,11 @@ int ft_split(char *s, int start, int finish){
 void addEdge(struct Node* adjacency_list[], int vertex1, int vertex2){
     struct Node* node1 = newNode(vertex1);
     node1->next = adjacency_list[vertex2];
-    adjacency_list[vertex2] = node1; //changing head here
+    adjacency_list[vertex2] = node1; //changing head adj[] here
 
     struct Node* node2 = newNode(vertex2);
     node2->next = adjacency_list[vertex1];
-    adjacency_list[vertex1] = node2;   //changing head here 
+    adjacency_list[vertex1] = node2;   //changing head of adj[] here 
 
 }
 
@@ -66,6 +66,31 @@ void print_adj_list(struct Node* adjacency_list[]){
     }
 }
 
+
+//VISIT nodes:
+void depth_first_search(struct Node* adjacency_list[], int visited[], int i){
+    visited[i] = 1;
+    struct Node* current = adjacency_list[i];
+    printf("Visited: %d ", i);
+    while(current != NULL){
+        int dest = current->vertex;
+        if (!visited[dest]){
+            depth_first_search(adjacency_list, visited, dest);
+        }
+        current = current->next;
+    }
+}
+
+
+void DFS(struct Node* adjacency_list[]){
+    int visited[MAX_NODES] = {0};
+    for (int i = 0; i < MAX_NODES; i++){
+        if (visited[i] == 0){
+            depth_first_search(adjacency_list, visited, i);
+        }
+    }
+}
+
 int main(){
     char* s = "1-2 1-3 1-4 4-5 5-6 6-7 7-8";
     // Initialize adjacency list
@@ -74,6 +99,7 @@ int main(){
         adjacency_list[i] = NULL;
     }
     int i = 0;
+    //parse the string and get 2 numbers that are connected: vertix1 and vertix2:
     while(s[i] != '\0'){
         int start = i;
         while (s[i] != '-' && s[i] != '\0') {
@@ -91,6 +117,7 @@ int main(){
         i++;
     }
     print_adj_list(adjacency_list);
+    DFS(adjacency_list);
     for (int i = 0; i < MAX_NODES; i++) {
         struct Node* temp = adjacency_list[i];
         while (temp != NULL) {

@@ -15,7 +15,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#define MAX_NODES 8
+#define MAX_NODES 12
 
 struct Node {
     int vertex;
@@ -68,31 +68,36 @@ void print_adj_list(struct Node* adjacency_list[]){
 
 
 //VISIT nodes:
-void depth_first_search(struct Node* adjacency_list[], int visited[], int i){
+void depth_first_search(struct Node* adjacency_list[], int visited[], int i, int cur_depth, int* max){
+    if (cur_depth > *max)
+        *max = cur_depth;
     visited[i] = 1;
     struct Node* current = adjacency_list[i];
-    printf("Visited: %d ", i);
+    // printf("Visited: %d ", i);
     while(current != NULL){
         int dest = current->vertex;
         if (!visited[dest]){
-            depth_first_search(adjacency_list, visited, dest);
+            depth_first_search(adjacency_list, visited, dest, cur_depth + 1, max);
         }
         current = current->next;
     }
+    visited[i] = 0;
 }
 
 
 void DFS(struct Node* adjacency_list[]){
+    int max = 0;
     int visited[MAX_NODES] = {0};
     for (int i = 0; i < MAX_NODES; i++){
-        if (visited[i] == 0){
-            depth_first_search(adjacency_list, visited, i);
+        if (adjacency_list[i] != NULL){
+            depth_first_search(adjacency_list, visited, i, 1, &max);
         }
     }
+    printf("Depth: %d\n", max);
 }
 
 int main(){
-    char* s = "1-2 1-3 1-4 4-5 5-6 6-7 7-8";
+    char* s = "10-5 5-8 8-3 3-5 1-9 9-2 2-5 3-2 8-4 4-7 7-10 2-1";
     // Initialize adjacency list
     struct Node* adjacency_list[MAX_NODES];
     for (int i = 0; i < MAX_NODES; i++) {
